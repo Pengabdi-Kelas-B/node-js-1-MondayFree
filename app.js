@@ -30,10 +30,11 @@ app.makeFolder = () => {
   const rl = createReadLine();
   rl.question("Masukan Nama Folder : ", async (folderName) => {
     try {
+      if(!folderName.trim()) throw new Error('Nama folder tidak boleh kosong')
       await fs.mkdir(__dirname + `/${folderName}`);
       console.log(`Folder ${folderName} berhasil dibuat`);
     } catch(err) {
-      console.log(err.code === 'EEXIST' ? 'Folder sudah ada' : err);
+      console.log(err.code === 'EEXIST' ? 'Folder sudah ada' : err.message);
     } finally {
       rl.close();
     }
@@ -48,9 +49,10 @@ app.makeFile = async () => {
   try {
     let extensi = await getInput('Masukan jenis file : ');
     extensi = extensi.trim();  
-    if(extensi.includes(" ")) throw new Error("Nama extensi tidak valid");
+    if(extensi.includes(" ") || extensi) throw new Error("Nama extensi tidak valid");
 
     let namaFile = await getInput('Masukan nama file : ');
+    if(!namaFile) throw new Error("Nama file tidak valid");
     const unOrganizeFolder = await fs.readdir('unorganize_folder');
     if(unOrganizeFolder.includes(namaFile + "." + extensi)) throw new Error(`File sudah ada di folder unorganize_folder`);
     const root = await fs.readdir('.');
