@@ -105,7 +105,7 @@ app.readFolder = async () => {
     if(!root.includes(desiredFolder)) throw new Error("Folder tidak ditemukan");
     const files = await fs.readdir(desiredFolder);
     if(files.length === 0) throw new Error("Tidak ada file di dalam folder")
-    const result = [];
+    let result = [];
     for(const file of files) {
       const fileName = file.split(".");
       const ext = fileName[fileName.length - 1];
@@ -114,10 +114,16 @@ app.readFolder = async () => {
         namaFile: file,
         extensi: ext,
         jenisFile: (ext === 'png' || ext === 'jpg' || ext === 'jpeg') ? 'gambar' : 'text',
-        tanggalDibuat: (new Date(detail.birthtime)).toLocaleDateString(),
+        tanggalDibuat: (new Date(detail.birthtime)),
         ukuranFile: detail.size < 1000000 ? `${detail.size} Bytes` : (Math.floor((detail.size / 1000000) * 10) / 10) + ' MB'
       })
     }
+    result = result.sort((a, b) => b.tanggalDibuat.getTime() - a.tanggalDibuat.getTime());
+    result = result.map(el => {
+      el.tanggalDibuat = el.tanggalDibuat.toLocaleString();
+      return el;
+    });
+
     console.log(`Berhasil menampilkan isi dari folder ${desiredFolder} :`);
     console.log(result);
   } catch(err) {  
