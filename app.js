@@ -34,8 +34,9 @@ app.makeFolder = () => {
       console.log(`Folder ${folderName} berhasil dibuat`);
     } catch(err) {
       console.log(err.code === 'EEXIST' ? 'Folder sudah ada' : err);
+    } finally {
+      rl.close();
     }
-    rl.close();
   })
 }
 
@@ -64,8 +65,9 @@ app.makeFile = async () => {
     console.log(`File ${namaFile}.${extensi} berhasil dibuat!`);
   } catch(err) {
     console.log(err.message);
+  } finally {
+    rl.close();
   }
-  rl.close();
 };
 
 
@@ -86,6 +88,42 @@ app.extSorter = async () => {
     console.log("Semua file berhasil dirapihkan");
   } catch(err) {
     console.log(err.message);
+  }
+};
+
+
+// read folder
+app.readFolder = async () => {
+  const rl = createReadLine();
+  const getInput = generateGetInput(rl);
+
+  try {
+    let desiredFolder = await getInput("Masukan nama folder yang dinginkan : ");
+    desiredFolder = desiredFolder.trim();
+    if(!desiredFolder) throw new Error("Nama Folder tidak boleh kosong");
+    const root = await fs.readdir('.');
+    if(!root.includes(desiredFolder)) throw new Error("Folder tidak ditemukan");
+    const files = await fs.readdir(desiredFolder);
+    if(files.length === 0) throw new Error("Tidak ada file di dalam folder")
+    const result = [];
+    for(const file of files) {
+      const fileName = file.split(".");
+      const ext = fileName[fileName.length - 1];
+      const detail = await fs.stat(__dirname + `/${desiredFolder}/${file}`);
+      result.push({
+        namaFile: file,
+        extensi: ext,
+        jenisFile: (ext === 'png' || ext === 'jpg' || ext === 'jpeg') ? 'gambar' : 'text',
+        tanggalDibuat: (new Date(detail.birthtime)).toLocaleDateString(),
+        ukuranFile: detail.size < 1000000 ? `${detail.size} Bytes` : (Math.floor((detail.size / 1000000) * 10) / 10) + ' MB'
+      })
+    }
+    console.log(`Berhasil menampilkan isi dari folder ${desiredFolder} :`);
+    console.log(result);
+  } catch(err) {  
+    console.log(err.message);
+  } finally {
+    rl.close();
   }
 };
 
