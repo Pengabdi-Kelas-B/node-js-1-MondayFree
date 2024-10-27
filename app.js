@@ -49,7 +49,7 @@ app.makeFile = async () => {
   try {
     let extensi = await getInput('Masukan jenis file : ');
     extensi = extensi.trim();  
-    if(extensi.includes(" ") || extensi) throw new Error("Nama extensi tidak valid");
+    if(extensi.includes(" ") || !extensi) throw new Error("Nama extensi tidak valid");
 
     let namaFile = await getInput('Masukan nama file : ');
     if(!namaFile) throw new Error("Nama file tidak valid");
