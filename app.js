@@ -106,7 +106,7 @@ app.readFolder = async () => {
     const root = await fs.readdir('.');
     if(!root.includes(desiredFolder)) throw new Error("Folder tidak ditemukan");
     const files = await fs.readdir(desiredFolder);
-    if(files.length === 0) throw new Error("Tidak ada file di dalam folder")
+    if(files.length === 0) throw new Error("Tidak ada file di dalam folder");
     let result = [];
     for(const file of files) {
       const fileName = file.split(".");
@@ -129,6 +129,38 @@ app.readFolder = async () => {
     console.log(`Berhasil menampilkan isi dari folder ${desiredFolder} :`);
     console.log(result);
   } catch(err) {  
+    console.log(err.message);
+  } finally {
+    rl.close();
+  }
+};
+
+
+// read file
+app.readFile = async () => {
+  const rl = createReadLine();
+  const getInput = generateGetInput(rl);
+
+  try {
+    let folder = await getInput("Pilih folder : ");
+    folder = folder.trim();
+    if(!folder) throw new Error("Folder tidak boleh kosong");
+    const root = await fs.readdir('.');
+    if(!root.includes(folder)) throw new Error("Folder tidak ada");
+    
+    let file = await getInput("Pilih file : ");
+    file = file.trim();
+    if(!file) throw new Error("File tidak boleh kosong");
+    const targetFolder = await fs.readdir(folder);
+    if(!targetFolder.includes(file)) throw new Error("File tidak ada di " + folder);
+    let ext = file.split('.');
+    ext = ext[ext.length - 1];
+    if(ext === 'png' || ext === 'jpg' || ext === 'jpeg') throw new Error(file + ' bukan berupa text');
+
+    const result = (await fs.readFile(`${folder}/${file}`)).toString();
+    console.log('Isi dari file ' + file + '\n');
+    console.log(result);
+  } catch(err) {
     console.log(err.message);
   } finally {
     rl.close();

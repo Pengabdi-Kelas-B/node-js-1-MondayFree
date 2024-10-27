@@ -16,6 +16,9 @@ switch (command) {
   case 'read-folder' :
     app.readFolder();
     break;
+  case 'read-file' :
+    app.readFile();
+    break;
   default:
     throw Error("Invalid command")
 }
